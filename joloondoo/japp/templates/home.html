@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+    
+    {% block content %}
+
+
+    <div class="relative w-full overflow-hidden after:clear-both after:block after:content-['']">
+        <section id="section-1" class="carousel-section">
+            <div class="carousel-item relative float-left -mr-[100%] w-full transition-transform duration-500 ease-in-out motion-reduce:transition-none" data-te-carousel-active data-te-carousel-item style="backface-visibility: hidden;">
+                <img src="{% static 'image/rd-1.jfif' %}" class="block w-full" alt="...">
+                <div class="carousel-caption absolute inset-x-[15%] bottom-5 hidden py-5 text-center text-white md:block">
+                    <h5 class="text-xl">Шалгалтанд бэлдэх амархан</h5>
+                </div>
+            </div>
+        
+            <div class="carousel-item relative float-left -mr-[100%] hidden w-full transition-transform duration-500 ease-in-out motion-reduce:transition-none" data-te-carousel-item style="backface-visibility: hidden;">
+                <img src="{% static 'image/rd-5.jpg' %}" class="block w-full" alt="...">
+                <div class="carousel-caption absolute inset-x-[15%] bottom-5 hidden py-5 text-center text-white md:block">
+                    <h5 class="text-xl">Цаг үрэх хэрэгтэй гэж үү?</h5>
+                </div>
+            </div>
+        
+            <div class="carousel-item relative float-left -mr-[100%] hidden w-full transition-transform duration-500 ease-in-out motion-reduce:transition-none" data-te-carousel-item style="backface-visibility: hidden;">
+                <img src="{% static 'image/rd-6.jfif' %}" class="block w-full" alt="...">
+                <div class="carousel-caption absolute inset-x-[15%] bottom-5 hidden py-5 text-center text-white md:block">
+                    <h5 class="text-xl ">Шалгалтаа ганц л өг</h5>
+                </div>
+            </div>
+        
+            <button class="carousel-control absolute bottom-0 left-0 top-0 z-[1] flex w-[15%] items-center justify-center border-0 bg-none p-0 text-center text-white opacity-50 transition-opacity duration-150 ease-in-out hover:text-white hover:no-underline hover:opacity-90 hover:outline-none focus:text-white focus:no-underline focus:opacity-90 focus:outline-none motion-reduce:transition-none" type="button" data-te-target="#carouselExampleCaptions" data-te-slide="prev">
+                <span class="inline-block h-8 w-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                </span>
+                <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Previous</span>
+            </button>
+        
+            <button class="carousel-control absolute bottom-0 right-0 top-0 z-[1] flex w-[15%] items-center justify-center border-0 bg-none p-0 text-center text-white opacity-50 transition-opacity duration-150 ease-in-out hover:text-white hover:no-underline hover:opacity-90 hover:outline-none focus:text-white focus:no-underline focus:opacity-90 focus:outline-none motion-reduce:transition-none" type="button" data-te-target="#carouselExampleCaptions" data-te-slide="next">
+                <span class="inline-block h-8 w-8">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-6 w-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                </span>
+                <span class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Next</span>
+            </button>
+        </section>
+        
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const carouselItems = document.querySelectorAll('.carousel-item');
+        const totalItems = carouselItems.length;
+        let currentIndex = 0;
+
+        function showSlide(index) {
+            carouselItems.forEach(item => {
+                item.classList.add('hidden');
+            });
+
+            carouselItems[index].classList.remove('hidden');
+            currentIndex = index;
+        }
+
+        const prevButton = document.querySelector('[data-te-slide="prev"]');
+        const nextButton = document.querySelector('[data-te-slide="next"]');
+
+        function showNextSlide() {
+            currentIndex = (currentIndex + 1) % totalItems;
+            showSlide(currentIndex);
+        }
+
+        function showPrevSlide() {
+            currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+            showSlide(currentIndex);
+        }
+
+        prevButton.addEventListener('click', showPrevSlide);
+        nextButton.addEventListener('click', showNextSlide);
+
+        const interval = 5000;
+
+        function startCarousel() {
+            setInterval(showNextSlide, interval);
+        }
+
+        startCarousel();
+    });
+</script>
+<style>
+    .great-vibes-font {
+    font-family: 'Great Vibes', cursive;
+}
+.indie-flower {
+    font-family: 'Dela Gothic One', cursive;
+    font-family: 'Great Vibes', cursive;
+    font-family: 'Indie Flower', cursive;
+}
+.dela-gothic {
+  font-family: 'Dela Gothic One', cursive;
+  font-family: 'Great Vibes', cursive;
+  font-family: 'Indie Flower', cursive;
+}
+
+
+</style>
+    
+
+      
+<section id="section-2" class="container mx-auto mt-8 md:p-8 sm:p-6">
+
+    <div class="grid grid-cols-2">
+
+        <div class="mb-4">
+            <iframe width="100%" height="315" src="https://www.youtube.com/embed/VIDEO_ID_1" title="Video Tutorial 1" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <div class="ml-8">
+            <h1 class="text-3xl font-bold">What is Joloondoo?</h1>
+            <p class="text-justify">Манай платформ таньд дүрмийн тухай бүх ойлголтыг өгч, тухайн сэдвийн дагуу дасгал ажиллах, шалгалтын горимоор дүрмийн шалгалтанд бэлдэх, алдсан алдааныхаа залруулга мэдээллийг шууд харах мэдлэгээ зузаатгах боломжийг олгох болно.</p>
+        </div>
+        
+        <div class="mb-4">
+            <iframe width="100%" height="315" src="https://www.youtube.com/embed/VIDEO_ID_2" title="Video Tutorial 2" frameborder="0" allowfullscreen></iframe>
+        </div>
+    
+        <div class="ml-8">
+            <h1 class="text-3xl font-bold">What is Joloondoo?</h1>
+                <p class="text-justify">Lorem ipsum dolor sit amet consectetur adipisicing elit. Officia quis minus eos, incidunt sequi iure! Ad obcaecati quasi, et, ipsa, amet rem totam eaque iusto magni placeat voluptatibus autem voluptates!.</p>
+        </div>
+        
+    </div>
+    
+</section>
+
+
+<section id="section-3" class="container mx-auto mt-8 md:p-8 sm:p-6">
+    <div class="grid grid-cols-2">
+        <!-- Left Column -->
+        <div class="grid grid-rows-3 col-span-2 lg:col-span-1 gap-10">
+            <div class="space-y-10">
+                <div id="bigtitle" class="text-3xl sm:text-6xl"><span class="dela-gothic">joloondoo</span>
+                    хэрэглэгчид амжилт гаргасаар</div>
+                <div class="">Манай платформ нь нийт шалгалт өгөгчдийн дүрмийн шалгалтанд эхний оролдлогоороо тэнцэх
+                    хувийг эрс өсгөж байна.🚀🚀🚀🚀</div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3">
+                <!-- 1st col -->
+                <div class="grid grid-rows-2 bg-[#c2c2c2] border border-gray-800 rounded p-2">
+                    <div class="text-3xl text-center">78%</div>
+                    <div class="text-justify">Joloondoo нэвтрэхээс өмнө эхний оролдлогоор тэнцдэг байсан үзүүлэлт.
+                    </div>
+                </div>
+                <!-- 2nd col -->
+                <div class="grid grid-rows-2 bg-[#c2c2c2] border border-gray-800 rounded p-2">
+                    <div class="text-3xl text-center">92%</div>
+                    <div class="text-justify">Joloondoo нэвтэрснээс хойш эхний оролдлогоор тэнцдэг болсон үзүүлэлт.
+                    </div>
+                </div>
+                <!-- 3rd col -->
+                <div class="grid grid-rows-2 bg-[#c2c2c2] border border-gray-800 rounded p-2">
+                    <div class="text-3xl text-center">₮39,000</div>
+                    <div class="text-justify">Joloondoo таны мэдлэгийг нэмэгдүүлэх үнэ.</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column (Image) -->
+        <div class="col-span-2 lg:col-span-1 flex justify-center items-center">
+            <img src="{% static 'image/happyman.png' %}" alt="" />
+        </div>
+    </div>
+</section>
+
+    {% endblock %}
+    
+</body>
+</html>

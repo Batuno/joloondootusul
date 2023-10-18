@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto mt-8 p-8 bg-white rounded shadow-lg max-w-lg">
+    <!-- Question and Image -->
+    <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold mb-4">Question 1: Lorem ipsum dolor sit amet consectetur </h1>
+        <img src="https://picsum.photos/200" alt="Paris" class="w-64 h-48 mx-auto object-cover mb-4 rounded-lg">
+    </div>
+
+    <!-- Answers -->
+    <div class="grid grid-cols-1 gap-4">
+        <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md focus:outline-none focus:ring focus:ring-gray-300">A. as</button>
+        <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md focus:outline-none focus:ring focus:ring-gray-300">B. ab</button>
+        <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md focus:outline-none focus:ring focus:ring-gray-300">C. acc</button>
+        <button class="bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-md focus:outline-none focus:ring focus:ring-gray-300">D. ad</button>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div class="flex justify-between mt-8">
+        <button class="bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded-md focus:outline-none focus:ring focus:ring-gray-400">Previous</button>
+        <button class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md focus:outline-none focus:ring focus:ring-blue-600">Next</button>
+    </div>
+</div>
+{% endblock %}

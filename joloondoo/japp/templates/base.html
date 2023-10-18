@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Great+Vibes&family=Indie+Flower&display=swap" rel="stylesheet">
+    
+    <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
+</head>
+<body class="font-mono bg-[#dfdfdf] flex flex-col min-h-screen">
+    <nav class="bg-gray-800 p-2">
+        <div class="container mx-auto flex justify-between items-center">
+          <a href="{% url 'home' %}"><img src="{% static 'image/joloondoo.png' %}" alt="" class="w-22 h-12"></a>
+          <div class="hidden md:flex space-x-4">
+            <a href="#" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Дүрмийн ном</a>
+            <a href="{% url 'practise' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Дасгал ажлууд</a>
+            <a href="#" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Шалгалтын горим</a>
+            <a href="{% url 'register_page' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Бүртгүүлэх</a>
+            <a href="{% url 'login_page' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Нэвтрэх</a>
+          </div>
+          <div class="md:hidden flex items-center">
+            <button id="burger-menu" class="text-white focus:outline-none">
+              ☰ Menu
+            </button>
+          </div>
+        </div>
+      </nav>
+      
+      <div class="hidden md:hidden" id="mobile-menu">
+        <div class="bg-gray-800">
+          <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 py-2">
+            <div class="mt-3 space-y-1">
+                <a href="#" class="text-white hover:bg-black block px-3 py-2 text-base font-medium uppercase hover:rounded">Дүрмийн ном</a>
+                <a href="#" class="text-white hover:bg-black block px-3 py-2 text-base font-medium uppercase hover:rounded">Дасгал ажлууд</a>
+              <a href="#" class="text-white hover:bg-black block px-3 py-2 text-base font-medium uppercase hover:rounded">Шалгалтын горим</a>
+              <a href="#" class="text-white hover:bg-black block px-3 py-2 text-base font-medium uppercase hover:rounded">Бүртгүүлэх</a>
+              <a href="{% url 'login_page' %}" class="text-white hover:bg-black block px-3 py-2 text-base font-medium uppercase hover:rounded">Нэвтрэх</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <script>
+        const burgerMenuButton = document.getElementById('burger-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+      
+        burgerMenuButton.addEventListener('click', () => {
+          mobileMenu.classList.toggle('hidden');
+        });
+      </script>
+
+   
+    {% block content %}
+    
+    {% endblock %}
+
+
+    <footer class="bg-gray-800 text-white mt-auto flex items-center justify-between w-full">
+        <div class="container mx-auto py-4 px-8 flex flex-wrap justify-center items-center">
+        <div class="w-full lg:w-1/2 text-center lg:text-left mb-4 lg:mb-0">
+            <p class="">©2023 Joloondoo. All rights reserved.</p>
+        </div>
+        <div class="w-full lg:w-1/2 text-center lg:text-right">
+            <ul class="flex justify-center lg:justify-end space-x-4">
+            <li>
+                <button type="button" class="inline-block rounded w-20 h-8 flex bg-gray-700 hover:bg-gray-900 items-center justify-center focus:outline-none focus:ring-0 bg-[#1877f2]">
+                <img src="{% static 'image/facebook.svg' %}" alt="">
+                </button>
+            </li>
+            <li>
+                <button type="button" class="inline-block rounded w-20 h-8 flex bg-gray-700 hover:bg-gray-900 items-center justify-center focus:outline-none focus:ring-0 bg-[#c13584]">
+                    <img src="{% static 'image/instagram.svg' %}" alt="">
+                </button>
+            </li>
+            <li>
+                <button type="button" class="inline-block rounded w-20 h-8 flex bg-gray-700 hover:bg-gray-900 items-center justify-center focus:outline-none focus:ring-0 bg-[#ff0000]">
+                    <img src="{% static 'image/youtube.svg' %}" alt="">
+                </button>
+            </li>
+            </ul>
+        </div>
+        </div>
+    </footer>
+  
+    
+</body>
+</html>
