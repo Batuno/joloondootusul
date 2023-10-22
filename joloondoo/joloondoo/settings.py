@@ -80,11 +80,11 @@ WSGI_APPLICATION = 'joloondoo.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'Joloondoo',   # Database name
-        'USER': 'postgres',   # Your PostgreSQL username
-        'PASSWORD': '123',   # Your PostgreSQL password
-        'HOST': 'localhost',   # If PostgreSQL is running on the same server, use 'localhost'
-        'PORT': '5432',   # PostgreSQL default port is 5432
+        'NAME': 'Joloondoo',  
+        'USER': 'postgres', 
+        'PASSWORD': '123', 
+        'HOST': 'localhost', 
+        'PORT': '5432',   
     }
 }
 
