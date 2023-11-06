@@ -1,33 +1,35 @@
 {% extends 'base.html' %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
-
-
+    <title>{% block title %}Нэвтрэх{% endblock %}</title>
 </head>
+
 <body>
 
-{% block content %}
+    {% block content %}
     <div class="container mx-auto my-10 p-8 bg-white shadow-md rounded-md">
         <h1 class="text-3xl font-bold mb-6">Нэвтрэх</h1>
-        <form method="post">
+        <form method="post" action="{% url 'loginUser' %}">
             {% csrf_token %}
             <div class="mb-4">
-                <label for="username" class="block text-sm font-medium text-gray-600">Username:</label>
+                <label for="username" class="block text-sm font-medium text-gray-600">Username or Email:</label>
                 <input type="text" id="username" name="username" class="mt-1 p-2 w-full border rounded-md">
             </div>
             <div class="mb-4">
                 <label for="password" class="block text-sm font-medium text-gray-600">Password:</label>
                 <input type="password" id="password" name="password" class="mt-1 p-2 w-full border rounded-md">
             </div>
-            <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline-blue">Login</button>
+            <button type="submit"
+                class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline-blue">Login</button>
         </form>
     </div>
-{% endblock %}
+    {% endblock %}
 
-    
 </body>
+
 </html>
