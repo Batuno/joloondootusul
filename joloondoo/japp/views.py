@@ -116,9 +116,10 @@ def loginUser(request):
 #getuser
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def getUser(request):
+    con = None
     if request.method == 'GET':
         try:
-            data = json.loads(request.body)
+            data = request.GET
             user_id = data.get('user_id', 'nokey')
             con = connect()
             cur = con.cursor()
@@ -126,6 +127,7 @@ def getUser(request):
             columns = cur.description
             respRow = [{columns[index][0]:column for index,
                     column in enumerate(value)} for value in cur.fetchall()]
+            
 
             if not respRow:
                 response_data = {
@@ -489,7 +491,12 @@ def profile_page(request):
     if not request.session.get('user_authenticated', False):
         return HttpResponseRedirect(reverse('login_page'))
     else:
-        return render(request, 'profile_page.html', {})
+        try:
+            user_data = getUser()
+            
+            return render(request, 'profile_page.html', {'getUser': user_data})
+        except Exception as error:
+            return render(request, 'profile_page.html', {'error': str(error)})
 
 
 def register_page(request):
