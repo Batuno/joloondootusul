@@ -4,11 +4,13 @@ import json
 import logging
 from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
+from django.urls import reverse
 import psycopg2
 from joloondoo import settings
 from joloondoo.settings import *
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from django.contrib.auth import logout as auth_logout
 
 ### ---------------------------------- utils here-----------------------------------------------------
 def hashPassword(pass_word):
@@ -20,12 +22,12 @@ def hashPassword(pass_word):
 
 ### -----------------------------------services here---------------------------------------------------
 #registeruser
-@ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
+@api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def registerUser(request):
     con = None
     if request.method == 'POST':
         try:
-            data = json.loads(request.body)
+            data = request.POST
             hashed_password = hashPassword(data['password'])
             created_at = datetime.datetime.now()
             subscription_expiry_date = created_at + datetime.timedelta(days=60)
@@ -40,11 +42,8 @@ def registerUser(request):
             )
             user_id = cur.fetchone()[0]
             con.commit()
-            response_data = {
-                "message": "Хэрэглэгч амжилттай бүртгэгдлээ.",
-                "user_id": user_id
-            }
-            return JsonResponse(response_data, status=201)
+
+            return redirect('home') 
 
         except Exception as error:
             response_data = {
@@ -62,19 +61,19 @@ def registerUser(request):
         }
         return JsonResponse(response_data, status=500)
 #loginuser
-@ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
+@api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def loginUser(request):
     con = None
     if request.method == 'POST':
         try:
-            data = json.loads(request.body) 
+            data = request.POST
             username = data.get('username', 'nokey')
             email = data.get('email', 'noemail')
             password = data.get('password', '')
             con = connect()
             cur = con.cursor()
             hashed_password = hashPassword(password)
-            cur.execute(f"""
+            cur.execute("""
                         SELECT user_id, username, email, password FROM tbl_user u WHERE username = %s OR email = %s""",
                         [username, email]
                         )
@@ -82,21 +81,21 @@ def loginUser(request):
 
             if user_data and hashed_password == user_data[3]:
                 print("login suc")
+                request.session['user_authenticated'] = True
                 response_data = {
-                    "user_id":user_data[0],
-                    "username":user_data[1],
-                    "email":user_data[2],
+                    "user_id": user_data[0],
+                    "username": user_data[1],
+                    "email": user_data[2],
                     "message": "Амжилттай нэвтэрлээ."
                 }
                 print(response_data)
-                # return HttpResponseRedirect('')
-                return JsonResponse(response_data, status=200)
+                # Redirect to home page
+                return redirect('home')
             else:
                 response_data = {
                     "message": "Хэрэглэгчийн нэр эсвэл нууц үг буруу байна"
                 }
                 return JsonResponse(response_data, status=401)
-
 
         except Exception as error:
             error_message = str(error)
@@ -117,7 +116,7 @@ def loginUser(request):
 #getuser
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def getUser(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
         try:
             data = json.loads(request.body)
             user_id = data.get('user_id', 'nokey')
@@ -158,7 +157,7 @@ def getUser(request):
 
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def updateUser(request):
-    if request.method == 'POST':
+    if request.method == 'PUT':
         try:
             data = json.loads(request.body)
             user_id = data.get('user_id', 'nokey')
@@ -270,7 +269,7 @@ def createSubject(request):
         
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def updateSubject(request, subject_id):
-    if request.method == 'POST':
+    if request.method == 'PUT':
         try:
             s_name = request.POST.get('s_name', '')
             s_text = request.POST.get('s_text', '')
@@ -328,7 +327,7 @@ def updateSubject(request, subject_id):
     
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def getSubject(request, subject_id):
-    if request.method == 'POST':
+    if request.method == 'GET':
         try:
             con = connect()
             cur = con.cursor()
@@ -471,6 +470,12 @@ def createAnswer(request):
         return JsonResponse(response_data, status=405)
 
 
+def logout(request):
+    if request.session.get('user_authenticated', False):
+        del request.session['user_authenticated']
+    auth_logout(request)
+
+    return HttpResponseRedirect(reverse('home'))
 
 
 
@@ -480,8 +485,18 @@ def home(request):
 
 
 
+def profile_page(request):
+    if not request.session.get('user_authenticated', False):
+        return HttpResponseRedirect(reverse('login_page'))
+    else:
+        return render(request, 'profile_page.html', {})
+
+
 def register_page(request):
     return render(request, 'register_page.html', {})
+
+def login_page(request):
+    return render(request, 'login_page.html', {})
 
 def practise(request):
     return render(request, 'practise.html', {})

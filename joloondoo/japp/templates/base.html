@@ -20,8 +20,13 @@
             <a href="#" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Дүрмийн ном</a>
             <a href="{% url 'practise' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Дасгал ажлууд</a>
             <a href="#" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Шалгалтын горим</a>
-            <a href="{% url 'register_page' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Бүртгүүлэх</a>
-            <a href="{% url 'loginUser' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Нэвтрэх</a>
+            {% if request.session.user_authenticated %}
+                <a href="{% url 'getUser' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Хувийн хаяг</a>
+                <a href="{% url 'logout' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Гарах</a>
+            {% else %}
+                <a href="{% url 'register_page' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Бүртгүүлэх</a>
+                <a href="{% url 'login_page' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Нэвтрэх</a>
+            {% endif %}
           </div>
           <div class="md:hidden flex items-center">
             <button id="burger-menu" class="text-white focus:outline-none">
