@@ -328,47 +328,40 @@ def updateSubject(request, subject_id):
         return JsonResponse(response_data, status=405)
     
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
-def getSubject(request, subject_id):
+def getSubject(request):
+    con = None
     if request.method == 'GET':
         try:
             con = connect()
             cur = con.cursor()
+            cur.execute("SELECT * FROM tbl_subject;")
+            columns = cur.description
+            subjects = [{columns[index][0]: column for index, column in enumerate(value)} for value in cur.fetchall()]
 
-            cur.execute(
-                """SELECT s_name, s_text, s_images 
-                FROM tbl_subject 
-                WHERE subject_id = %s""",
-                [subject_id]
-            )
-            subject_data = cur.fetchone()
-
-            if subject_data:
-                subject_info = {
-                    "s_name": subject_data[0],
-                    "s_text": subject_data[1],
-                    "s_images": subject_data[2]
-                }
+            if not subjects:
                 response_data = {
-                    "message": "Хичээл амжилттай олдлоо.",
-                    "subject_info": subject_info
-                }
-                return JsonResponse(response_data, status=200)
-            else:
-                response_data = {
-                    "message": "Хичээл олдсонгүй.",
+                    "message": "No subjects found.",
                 }
                 return JsonResponse(response_data, status=404)
+
+            response_data = {
+                "message": "Successful",
+                "subjects": subjects,
+            }
+            return render(request, 'subjects_page.html', {'subjects': subjects})
+            return JsonResponse(response_data, status=200)
 
         except Exception as error:
             response_data = {
                 "error": str(error),
-                "message": "Хичээл олоход алдаа гарлаа."
+                "message": "Error fetching subjects.",
             }
             return JsonResponse(response_data, status=500)
 
         finally:
             if con is not None:
                 con.close()
+
     else:
         response_data = {
             "message": "Method Not Allowed"
