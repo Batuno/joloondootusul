@@ -14,7 +14,7 @@ urlpatterns = [
     path('updateuser', views.updateUser, name='updateuser'), #back
 
     # path('subjects', views.getSubject, name='getSubject'), #back
-    path('getsubject', views.getSubject, name='getSubject'), #back
+    path('getsubject', views.getSubject, name='getSubject'), #back #front
     path('createsubject', views.createSubject, name='createsubject'), #back
     path('updatesubject/<int:subject_id>', views.updateSubject, name='updatesubject'), #back
 

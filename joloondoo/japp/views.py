@@ -11,6 +11,7 @@ from joloondoo.settings import *
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.contrib.auth import logout as auth_logout
+import logging
 
 ### ---------------------------------- utils here-----------------------------------------------------
 def hashPassword(pass_word):

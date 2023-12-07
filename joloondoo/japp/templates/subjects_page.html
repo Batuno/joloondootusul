@@ -20,7 +20,7 @@
                             <h2 class="text-xl font-semibold mb-2 subject-toggle" data-subject-id="{{ subject.subject_id }}">{{ subject.s_name }}</h2>
                             <div class="hidden subject-details" id="subject-details-{{ subject.subject_id }}">
                                 <div class="flex justify-center">
-                                    <img src="{% static 'image/subject/1/d1.png' %}" alt="zurag 1" class="mx-auto">
+                                    <img src="media/{{ subject.s_images }}" alt="{{ subject.s_name }}" class="mx-auto">
                                 </div>
                                 <p class="text-gray-600 text-justify">{{ subject.s_text }}</p>
                             </div>
