@@ -423,38 +423,65 @@ def createQuestion(request):
         }
         return JsonResponse(response_data, status=405)
 
-@ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
+@ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])   
 def getQuestion(request):
     con = None
     if request.method == 'GET':
         try:
-            con = connect()
-            cur = con.cursor()
-            cur.execute("""
-                            SELECT q.question_id, q.q_images, q.q_text, s.s_name 
+            con = connect().cursor()
+            con.execute("""
+                            SELECT q.question_id, q.q_images, q.q_text, s.subject_id, s.s_name, a.a_text, a.a_iscorrect
                             FROM tbl_question q
-                            INNER JOIN tbl_subject s ON q.subject_id = s.subject_id;
+                            INNER JOIN tbl_subject s ON q.subject_id = s.subject_id
+                            LEFT JOIN tbl_answer a ON q.question_id = a.question_id;
                         """)
-            columns = cur.description
-            questions = [{columns[index][0]: column for index, column in enumerate(value)} for value in cur.fetchall()]
+            columns = con.description
+            rows = con.fetchall()
+
+            subjects = {}
+            questions = {}
+            for row in rows:
+                question_id, q_images, q_text, subject_id, s_name, a_text, a_iscorrect = row
+
+                if subject_id not in subjects:
+                    subjects[subject_id] = {
+                        'subject_id': subject_id,
+                        's_name': s_name,
+                    }
+
+                if question_id not in questions:
+                    questions[question_id] = {
+                        'question_id': question_id,
+                        'q_images': q_images,
+                        'q_text': q_text,
+                        'subject_id': subject_id,
+                        's_name': s_name,
+                        'answers': [],
+                    }
+                if a_text is not None:
+                    questions[question_id]['answers'].append({
+                        'a_text': a_text,
+                        'a_iscorrect': a_iscorrect,
+                    })
 
             if not questions:
                 response_data = {
-                    "message": "Тохирох id тай асуулт олдсонгүй."
+                    "message": "No questions found.",
                 }
                 return JsonResponse(response_data, status=404)
 
             response_data = {
-                "message": "Амжилттай",
-                "respRow": questions,
+                "message": "Successful",
+                "subjects": list(subjects.values()),
+                "questions": list(questions.values()), 
             }
-            return render(request, 'practise.html', {'questions': questions})
-            return JsonResponse(response_data, status=200)
+
+            return render(request, 'practise.html', response_data)
 
         except Exception as error:
             response_data = {
                 "error": str(error),
-                "message": "Алдаа гарлаа."
+                "message": "Error fetching questions.",
             }
             return JsonResponse(response_data, status=500)
 
@@ -463,9 +490,10 @@ def getQuestion(request):
                 con.close()
     else:
         response_data = {
-            "message": "Хүсэлт буруу байна."
+            "message": "Invalid request method.",
         }
         return JsonResponse(response_data, status=405)
+
 
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def createAnswer(request):
@@ -544,3 +572,66 @@ def login_page(request):
 
 def practise(request):
     return render(request, 'practise.html', {})
+
+
+
+# def getQuestion(request):
+#     con = None
+#     if request.method == 'GET':
+#         try:
+#             con = connect()
+#             cur = con.cursor()
+#             cur.execute("""
+#                             SELECT q.question_id, q.q_images, q.q_text, s.s_name, a.a_text, a.a_iscorrect
+#                             FROM tbl_question q
+#                             INNER JOIN tbl_subject s ON q.subject_id = s.subject_id
+#                             LEFT JOIN tbl_answer a ON q.question_id = a.question_id;
+#                         """)
+#             columns = cur.description
+#             rows = cur.fetchall()
+
+#             questions = {}
+#             for row in rows:
+#                 question_id, q_images, q_text, s_name, a_text, a_iscorrect = row
+#                 if question_id not in questions:
+#                     questions[question_id] = {
+#                         'question_id': question_id,
+#                         'q_images': q_images,
+#                         'q_text': q_text,
+#                         's_name': s_name,
+#                         'answers': [],
+#                     }
+#                 if a_text is not None:
+#                     questions[question_id]['answers'].append({
+#                         'a_text': a_text,
+#                         'a_iscorrect': a_iscorrect,
+#                     })
+
+#             if not questions:
+#                 response_data = {
+#                     "message": "Тохирох id тай асуулт олдсонгүй."
+#                 }
+#                 return JsonResponse(response_data, status=404)
+
+#             response_data = {
+#                 "message": "Амжилттай",
+#                 "respRow": list(questions.values()), 
+#             }
+#             return render(request, 'practise.html', {'questions': questions})
+#             return JsonResponse(response_data, status=200)
+
+#         except Exception as error:
+#             response_data = {
+#                 "error": str(error),
+#                 "message": "Алдаа гарлаа."
+#             }
+#             return JsonResponse(response_data, status=500)
+
+#         finally:
+#             if con is not None:
+#                 con.close()
+#     else:
+#         response_data = {
+#             "message": "Хүсэлт буруу байна."
+#         }
+#         return JsonResponse(response_data, status=405)
