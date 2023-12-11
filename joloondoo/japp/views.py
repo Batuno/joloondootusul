@@ -120,7 +120,7 @@ def getUser(request):
     con = None
     if request.method == 'GET':
         try:
-            data = request.GET
+            data = json.loads(request.body)
             user_id = data.get('user_id', 'nokey')
             con = connect()
             cur = con.cursor()
@@ -154,7 +154,7 @@ def getUser(request):
                 con.close()
     else:
         response_data = {
-            "message": "Method Not Allowed"
+            "message": "Хүсэлт буруу байна."
         }
         return JsonResponse(response_data, status=500)
 
@@ -214,7 +214,7 @@ def updateUser(request):
 
     else:
         response_data = {
-            "message": "Method Not Allowed",
+            "message": "Хүсэлт буруу байна.",
         }
         return JsonResponse(response_data, status=405)
 
@@ -266,7 +266,7 @@ def createSubject(request):
                 con.close()
     else:
         response_data = {
-            "message": "Method Not Allowed"
+            "message": "Хүсэлт буруу байна."
         }
         return JsonResponse(response_data, status=405)
         
@@ -324,7 +324,7 @@ def updateSubject(request, subject_id):
                 con.close()
     else:
         response_data = {
-            "message": "Method Not Allowed"
+            "message": "Хүсэлт буруу байна."
         }
         return JsonResponse(response_data, status=405)
     
@@ -335,7 +335,7 @@ def getSubject(request):
         try:
             con = connect()
             cur = con.cursor()
-            cur.execute("SELECT * FROM tbl_subject;")
+            cur.execute("SELECT * FROM tbl_subject ORDER BY subject_id;")
             columns = cur.description
             subjects = [{columns[index][0]: column for index, column in enumerate(value)} for value in cur.fetchall()]
 
@@ -365,7 +365,7 @@ def getSubject(request):
 
     else:
         response_data = {
-            "message": "Method Not Allowed"
+            "message": "Хүсэлт буруу байна."
         }
         return JsonResponse(response_data, status=405)
 
@@ -419,10 +419,53 @@ def createQuestion(request):
                 con.close()
     else:
         response_data = {
-            "message": "Method Not Allowed"
+            "message": "Хүсэлт буруу байна."
         }
         return JsonResponse(response_data, status=405)
 
+@ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
+def getQuestion(request):
+    con = None
+    if request.method == 'GET':
+        try:
+            con = connect()
+            cur = con.cursor()
+            cur.execute("""
+                            SELECT q.question_id, q.q_images, q.q_text, s.s_name 
+                            FROM tbl_question q
+                            INNER JOIN tbl_subject s ON q.subject_id = s.subject_id;
+                        """)
+            columns = cur.description
+            questions = [{columns[index][0]: column for index, column in enumerate(value)} for value in cur.fetchall()]
+
+            if not questions:
+                response_data = {
+                    "message": "Тохирох id тай асуулт олдсонгүй."
+                }
+                return JsonResponse(response_data, status=404)
+
+            response_data = {
+                "message": "Амжилттай",
+                "respRow": questions,
+            }
+            return render(request, 'practise.html', {'questions': questions})
+            return JsonResponse(response_data, status=200)
+
+        except Exception as error:
+            response_data = {
+                "error": str(error),
+                "message": "Алдаа гарлаа."
+            }
+            return JsonResponse(response_data, status=500)
+
+        finally:
+            if con is not None:
+                con.close()
+    else:
+        response_data = {
+            "message": "Хүсэлт буруу байна."
+        }
+        return JsonResponse(response_data, status=405)
 
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def createAnswer(request):
@@ -461,7 +504,7 @@ def createAnswer(request):
 
     else:
         response_data = {
-            "message": "Method Not Allowed"
+            "message": "Хүсэлт буруу байна."
         }
         return JsonResponse(response_data, status=405)
 

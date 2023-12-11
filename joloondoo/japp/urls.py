@@ -5,7 +5,6 @@ urlpatterns = [
     path('', views.home, name='home'), #front
     path('register', views.register_page, name='register_page'), #front
     path('registeruser', views.registerUser, name='registerUser'), #back
-    path('practise', views.practise, name='practise'), 
     path('login', views.login_page, name='login_page'), #front
     path('loginuser', views.loginUser, name='loginUser'), #back
     path('logout', views.logout, name='logout'), #back
@@ -18,6 +17,8 @@ urlpatterns = [
     path('createsubject', views.createSubject, name='createsubject'), #back
     path('updatesubject/<int:subject_id>', views.updateSubject, name='updatesubject'), #back
 
+    path('getquestion', views.getQuestion, name='getQuestion'), #back #front
     path('createquestion', views.createQuestion, name='createquestion'), #back
+
     path('createanswer', views.createAnswer, name='createanswer'), #back
 ]
