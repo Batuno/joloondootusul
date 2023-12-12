@@ -18,7 +18,6 @@ urlpatterns = [
     path('updatesubject/<int:subject_id>', views.updateSubject, name='updatesubject'), #back
 
     path('getquestion', views.getQuestion, name='getQuestion'), #back #front
-    # path('getquestion/<int:subject_id>/', views.getQuestionBySubject, name='getQuestionBySubject'), #back #front
     path('createquestion', views.createQuestion, name='createquestion'), #back
 
     path('createanswer', views.createAnswer, name='createanswer'), #back

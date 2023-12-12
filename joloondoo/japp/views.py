@@ -489,69 +489,6 @@ def getQuestion(request):
         return JsonResponse(response_data, status=405)
 
 
-
-# @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])   
-# def getQuestionBySubject(request, subject_id):
-#     con = None
-#     if request.method == 'GET':
-#         try:
-#             con = connect().cursor()
-#             con.execute("""
-#                             SELECT q.question_id, q.q_images, q.q_text, s.subject_id, s.s_name, a.a_text, a.a_iscorrect
-#                             FROM tbl_question q
-#                             INNER JOIN tbl_subject s ON q.subject_id = s.subject_id
-#                             LEFT JOIN tbl_answer a ON q.question_id = a.question_id
-#                             WHERE s.subject_id = %s;
-#                         """,[subject_id])
-#             columns = con.description
-#             rows = con.fetchall()
-
-#             questions = []
-#             for row in rows:
-#                 question_id, q_images, q_text, subject_id, s_name, a_text, a_iscorrect = row
-
-#                 question = {
-#                     'question_id': question_id,
-#                     'q_images': q_images,
-#                     'q_text': q_text,
-#                     'subject_id': subject_id,
-#                     's_name': s_name,
-#                     'answers': [],
-#                 }
-
-#                 if a_text is not None:
-#                     question['answers'].append({
-#                         'a_text': a_text,
-#                         'a_iscorrect': a_iscorrect,
-#                     })
-
-#                 questions.append(question)
-
-#             if not questions:
-#                 response_data = {
-#                     "message": f"No questions found for subject with ID {subject_id}.",
-#                 }
-#                 return JsonResponse(response_data, status=404)
-
-#             context = {
-#                 "subject_id": subject_id,
-#                 "questions": questions,
-#             }
-
-#             return render(request, 'practise_questions.html', context)
-
-#         except Exception as error:
-#             response_data = {
-#                 "error": str(error),
-#                 "message": "Error fetching questions.",
-#             }
-#             return JsonResponse(response_data, status=500)
-
-#         finally:
-#             if con is not None:
-#                 con.close()
-
-
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
 def createAnswer(request):
     if request.method == 'POST':
