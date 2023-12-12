@@ -373,13 +373,13 @@ def getSubject(request):
 def createQuestion(request):
     if request.method == 'POST':
         try:
-            subject_id = request.POST.get('subject_id', '')
+            qsubject_id = request.POST.get('qsubject_id', '')
             q_text = request.POST.get('q_text', '')
             image_file = request.FILES.get('q_images')
 
             con = connect()
             cur = con.cursor()
-            cur.execute("SELECT * FROM tbl_subject WHERE subject_id = %s", [subject_id])
+            cur.execute("SELECT * FROM tbl_qsubject WHERE qsubject_id = %s", [qsubject_id])
             subject = cur.fetchone()
 
             if subject and q_text and image_file:
@@ -390,10 +390,10 @@ def createQuestion(request):
 
                 cur.execute(
                     """INSERT INTO tbl_question 
-                    (subject_id, q_text, q_images) 
+                    (qsubject_id, q_text, q_images) 
                     VALUES (%s, %s, %s) 
                     RETURNING question_id""",
-                    (subject_id, q_text, f'subjects/questions/{image_file.name}')
+                    (qsubject_id, q_text, f'subjects/questions/{image_file.name}')
                 )
                 question_id = cur.fetchone()[0]
                 con.commit()
@@ -428,60 +428,54 @@ def getQuestion(request):
     con = None
     if request.method == 'GET':
         try:
-            con = connect().cursor()
-            con.execute("""
-                            SELECT q.question_id, q.q_images, q.q_text, s.subject_id, s.s_name, a.a_text, a.a_iscorrect
+            con = connect()
+            cur = con.cursor()
+            cur.execute("""
+                            SELECT q.question_id, q.q_images, q.q_text, s.qs_name, a.a_text, a.a_iscorrect
                             FROM tbl_question q
-                            INNER JOIN tbl_subject s ON q.subject_id = s.subject_id
-                            LEFT JOIN tbl_answer a ON q.question_id = a.question_id;
+                            INNER JOIN tbl_qsubject s ON q.qsubject_id = s.qsubject_id
+                            LEFT JOIN tbl_answer a ON q.question_id = a.question_id
+                            ORDER BY q.question_id, a.a_text;
                         """)
-            columns = con.description
-            rows = con.fetchall()
+
+            columns = cur.description
+            rows = cur.fetchall()
 
             subjects = {}
-            questions = {}
             for row in rows:
-                question_id, q_images, q_text, subject_id, s_name, a_text, a_iscorrect = row
-
-                if subject_id not in subjects:
-                    subjects[subject_id] = {
-                        'subject_id': subject_id,
-                        's_name': s_name,
-                    }
-
-                if question_id not in questions:
-                    questions[question_id] = {
+                question_id, q_images, q_text, qs_name, a_text, a_iscorrect = row
+                if qs_name not in subjects:
+                    subjects[qs_name] = []
+                if question_id not in [q['question_id'] for q in subjects[qs_name]]:
+                    subjects[qs_name].append({
                         'question_id': question_id,
                         'q_images': q_images,
                         'q_text': q_text,
-                        'subject_id': subject_id,
-                        's_name': s_name,
                         'answers': [],
-                    }
+                    })
                 if a_text is not None:
-                    questions[question_id]['answers'].append({
+                    subjects[qs_name][-1]['answers'].append({
                         'a_text': a_text,
                         'a_iscorrect': a_iscorrect,
                     })
 
-            if not questions:
+            if not subjects:
                 response_data = {
-                    "message": "No questions found.",
+                    "message": "Тохирох id тай асуулт олдсонгүй."
                 }
                 return JsonResponse(response_data, status=404)
 
             response_data = {
-                "message": "Successful",
-                "subjects": list(subjects.values()),
-                "questions": list(questions.values()), 
+                "message": "Амжилттай",
+                "respRow": list(subjects.values()), 
             }
-
-            return render(request, 'practise.html', response_data)
+            return render(request, 'practise.html', {'subjects': subjects})
+            return JsonResponse(response_data, status=200)
 
         except Exception as error:
             response_data = {
                 "error": str(error),
-                "message": "Error fetching questions.",
+                "message": "Алдаа гарлаа."
             }
             return JsonResponse(response_data, status=500)
 
@@ -490,9 +484,72 @@ def getQuestion(request):
                 con.close()
     else:
         response_data = {
-            "message": "Invalid request method.",
+            "message": "Хүсэлт буруу байна."
         }
         return JsonResponse(response_data, status=405)
+
+
+
+# @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])   
+# def getQuestionBySubject(request, subject_id):
+#     con = None
+#     if request.method == 'GET':
+#         try:
+#             con = connect().cursor()
+#             con.execute("""
+#                             SELECT q.question_id, q.q_images, q.q_text, s.subject_id, s.s_name, a.a_text, a.a_iscorrect
+#                             FROM tbl_question q
+#                             INNER JOIN tbl_subject s ON q.subject_id = s.subject_id
+#                             LEFT JOIN tbl_answer a ON q.question_id = a.question_id
+#                             WHERE s.subject_id = %s;
+#                         """,[subject_id])
+#             columns = con.description
+#             rows = con.fetchall()
+
+#             questions = []
+#             for row in rows:
+#                 question_id, q_images, q_text, subject_id, s_name, a_text, a_iscorrect = row
+
+#                 question = {
+#                     'question_id': question_id,
+#                     'q_images': q_images,
+#                     'q_text': q_text,
+#                     'subject_id': subject_id,
+#                     's_name': s_name,
+#                     'answers': [],
+#                 }
+
+#                 if a_text is not None:
+#                     question['answers'].append({
+#                         'a_text': a_text,
+#                         'a_iscorrect': a_iscorrect,
+#                     })
+
+#                 questions.append(question)
+
+#             if not questions:
+#                 response_data = {
+#                     "message": f"No questions found for subject with ID {subject_id}.",
+#                 }
+#                 return JsonResponse(response_data, status=404)
+
+#             context = {
+#                 "subject_id": subject_id,
+#                 "questions": questions,
+#             }
+
+#             return render(request, 'practise_questions.html', context)
+
+#         except Exception as error:
+#             response_data = {
+#                 "error": str(error),
+#                 "message": "Error fetching questions.",
+#             }
+#             return JsonResponse(response_data, status=500)
+
+#         finally:
+#             if con is not None:
+#                 con.close()
 
 
 @ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
