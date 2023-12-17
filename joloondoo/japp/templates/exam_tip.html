@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Tips</title>
+</head>
+<body>
+    {% block content %}
+
+    <div class="container mx-auto p-4">
+        <div class="bg-white p-6 rounded shadow-md">
+            <h1 class="text-3xl font-bold mb-4">Зөвлөгөө</h1>
+            <ul class="text-xl list-disc pl-5">
+                <li>Замын хөдөлгөөний дүрмийн шалгалт нь 20 асуултаас бүрдэх бөгөөд нийт 20 минут үргэлжилнэ.</li>
+                <li>Шалгалт өгөх товчыг дарснаас хойш дэлгэцийн зүүн дээд буланд 20 минутыг тоолж хугацааг хэлж өгнө.</li>
+                <li>Хугацаа дуусах үед хэрэглэгч хариулж дууссан үгүйгээс үл харгалзан шалгалт шууд өндөрлөнө.</li>
+                <li>Нийт 20 асуултаас 18 буюу түүнээс дээш асуултанд зөв хариулсан тохиолдолд хэрэглэгч шалгалтанд тэнцсэн гэж дүгнэгдэнэ.</li>
+                <li>Хугацаа дуусаагүй үед хариултаа хэдэн ч удаа нягталж, засварлах боломжтой.</li>
+                <li>Хугацаа дуусахаас өмнө бүх асуултанд хариулсан бол шалгалтыг шууд өндөрлүүлэх боломжтой.</li>
+                <li>Шалгалтыг өндөрлүүлсэн нөхцөлд ямар асуултанд зөв, буруу хариулсныг харах боломжтой бөгөөд засварлах боломжгүй.</li>
+                <li>Шалгалтыг өндөрлүүлсэн үед тухайн асуултуудын тухай тайлбар гарч ирэх тул дахин алдах магадлалыг багасгана.</li>
+                <li>Шалгалтыг хэдэн ч удаа өгөх боломжтой тул дахин "Шалгалт өгөх" товчыг дарж, эхлүүлж болно.</li>
+                <li>Танд амжилт хүсье!!!</li>
+            </ul>
+        </div>
+    </div>
+    <div class="flex justify-center mt-6">
+        <button id="get-exam" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-110 w-1/4" onclick="window.location.href='{% url 'get_exam' %}'">Шалгалт өгөх</button>
+    </div>
+
+    {% endblock %}
+</body>
+</html>

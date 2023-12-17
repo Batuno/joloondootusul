@@ -788,18 +788,9 @@ def home(request):
     return render(request, 'home.html', {})
 
 
+def exam_tip(request):
+    return render(request, 'exam_tip.html', {})
 
-
-# def profile_page(request):
-#     if not request.session.get('user_authenticated', False):
-#         return HttpResponseRedirect(reverse('login_page'))
-#     else:
-#         try:
-#             user_data = getUser()
-            
-#             return render(request, 'profile_page.html', {'getUser': user_data})
-#         except Exception as error:
-#             return render(request, 'profile_page.html', {'error': str(error)})
 
 
 def register_page(request):

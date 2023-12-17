@@ -22,6 +22,7 @@ urlpatterns = [
     path('getquestion', views.getQuestion, name='getQuestion'), #back #front
     path('createquestion', views.createQuestion, name='createquestion'), #back
 
+    path('exam_tip', views.exam_tip, name='exam_tip'), #front
     path('get_exam', views.get_exam, name='get_exam'), #back
     path('submit_exam', views.submit_exam, name='submit_exam'), #back
     path('exam_review/<int:exam_id>/', views.get_exam_review, name='exam_review'), #back
