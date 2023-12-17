@@ -20,5 +20,8 @@ urlpatterns = [
     path('getquestion', views.getQuestion, name='getQuestion'), #back #front
     path('createquestion', views.createQuestion, name='createquestion'), #back
 
+    path('get_exam', views.get_exam, name='get_exam'), #back
+    path('submit_exam', views.submit_exam, name='submit_exam'), #back
+
     path('createanswer', views.createAnswer, name='createanswer'), #back
 ]

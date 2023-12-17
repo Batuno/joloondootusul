@@ -83,6 +83,7 @@ def loginUser(request):
             if user_data and hashed_password == user_data[3]:
                 print("login suc")
                 request.session['user_authenticated'] = True
+                request.session['user_id'] = user_data[0]
                 response_data = {
                     "user_id": user_data[0],
                     "username": user_data[1],
@@ -529,6 +530,131 @@ def createAnswer(request):
             "message": "Хүсэлт буруу байна."
         }
         return JsonResponse(response_data, status=405)
+
+
+@api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
+def get_exam(request):
+    if request.method == 'GET':
+        try:
+            con = connect()
+            cur = con.cursor()
+            cur.execute("""
+                SELECT q.question_id, q.q_text, q.q_images, a.answer_id, a.a_text, a.a_iscorrect
+                FROM (
+                    SELECT * FROM tbl_question
+                    ORDER BY RANDOM()
+                    LIMIT 20
+                ) AS q
+                LEFT JOIN tbl_answer AS a ON q.question_id = a.question_id
+
+            """)
+
+            rows = cur.fetchall()
+
+            questions = {}
+            for row in rows:
+                question_id, q_text, q_images, answer_id, a_text, a_iscorrect = row
+                if question_id not in [q['question_id'] for q in questions.values()]:
+                    questions[question_id] = {
+                        'question_id': question_id,
+                        'text': q_text,
+                        'image': q_images,
+                        'answers': [],
+                    }
+                if a_text is not None:
+                    questions[question_id]['answers'].append({
+                        'answer_id': answer_id,
+                        'text': a_text,
+                        'a_iscorrect': a_iscorrect,
+                    })
+
+
+            if not questions:
+                response_data = {
+                    "message": "No questions found."
+                }
+                return JsonResponse(response_data, status=404)
+
+            response_data = {
+                "message": "Successful",
+                "questions": questions,
+            }
+
+            return render(request, 'get_exam.html', {'questions': questions.values()})
+            return JsonResponse(response_data, status=200)
+
+        except Exception as error:
+            response_data = {
+                "error": str(error),
+                "message": "Error fetching questions.",
+            }
+            return JsonResponse(response_data, status=500)
+
+        finally:
+            if con is not None:
+                con.close()
+    else:
+        response_data = {
+            "message": "Method Not Allowed"
+        }
+        return JsonResponse(response_data, status=405)
+
+
+@ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
+def submit_exam(request):
+    con = None
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            score = data.get('score', '')
+            time_taken = data.get('time_taken')
+            date_taken = datetime.datetime.now()
+            user_id = request.session.get('user_id')
+
+            if user_id is None:
+                response_data = {
+                    "error": "User is not logged in.",
+                    "message": "Error submitting exam."
+                }
+                return JsonResponse(response_data, status=400)
+            
+            con = connect()
+            cur = con.cursor()
+            print(user_id, date_taken, time_taken, score)
+            cur.execute(
+                """
+                INSERT INTO tbl_examscore (user_id, score, date_taken, time_taken)
+                VALUES (%s, %s, %s, %s)
+                RETURNING exam_id
+                """,
+                (user_id, score, date_taken, time_taken)
+            )
+            exam_id = cur.fetchone()[0]
+            con.commit()
+            
+
+            response_data = {
+                "message": "Exam submitted successfully.",
+                "exam_score_id": exam_id,
+            }
+            return JsonResponse(response_data, status=201)
+
+        except Exception as error:
+            response_data = {
+                "error": str(error),
+                "message": "Error submitting exam.",
+            }
+            return JsonResponse(response_data, status=500)
+
+        finally:
+            if con is not None:
+                con.close()
+    else:
+        response_data = {
+            "message": "Method Not Allowed"
+        }
+        return JsonResponse(response_data, status=405)
+
 
 
 def logout(request):

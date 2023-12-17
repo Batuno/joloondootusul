@@ -19,7 +19,7 @@
           <div class="hidden md:flex space-x-4">
             <a href="{% url 'getSubject' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Дүрмийн ном</a>
             <a href="{% url 'getQuestion' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Дасгал ажлууд</a>
-            <a href="#" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Шалгалтын горим</a>
+            <a href="{% url 'get_exam' %}" class="text-white hover:bg-black py-2 px-2 uppercase hover:rounded">Шалгалтын горим</a>
             {% if request.session.user_authenticated %}
             <div class="relative ml-3">
               <div>

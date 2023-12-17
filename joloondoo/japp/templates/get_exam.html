@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block title %}{% endblock %}
+</head>
+<body>
+{% block content %}
+<div id="timer"></div>
+
+<div class="container mx-auto px-4 py-8">
+
+    <div id="questions">
+        {% for question in questions %}
+            <div class="mb-8 question" data-exam-id="{{ question.exam_id }}">
+                <h2 class="text-2xl font-semibold mb-4">Асуулт {{ forloop.counter }}</h2>
+                <img src="media/{{ question.image }}" alt="Question {{ forloop.counter }}" class="w-full mb-4 rounded-lg shadow-md">
+
+                <form>
+                    {% csrf_token %}
+                    {% for answer in question.answers %}
+                        <label class="block mb-2 p-4 border border-gray-300 rounded-md hover:border-blue-500 transition duration-300 bg-white">
+                            <input type="radio" name="answer{{ question.question_id }}" value="{{ answer.answer_id }}" class="mr-2" data-correct="{{ answer.a_iscorrect }}">
+                            <span class="text-lg">{{ answer.text }}</span>
+                        </label>
+                    {% endfor %}
+                </form>
+                
+            </div>
+        {% endfor %}
+    </div>
+
+    <button id="submit-exam" class="bg-blue-500 text-white px-6 py-3 mt-8 rounded-full hover:bg-blue-700 transition duration-300">Submit Exam</button>
+</div>
+
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const questionsContainer = document.getElementById('questions');
+    const submitButton = document.getElementById('submit-exam');
+    const timerElement = document.getElementById('timer');
+    let timeLeft = 20 * 60;
+
+    // Start timer
+    const timerInterval = setInterval(() => {
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            submitExam();
+        } else {
+            timeLeft--;
+            timerElement.innerText = `Time left: ${Math.floor(timeLeft / 60)}:${timeLeft % 60 < 10 ? '0' : ''}${timeLeft % 60}`;
+        }
+    }, 1000);
+
+    // Fetch questions
+    fetch('/get_exam')
+        .then(response => response.json())
+        .then(data => {
+            data.questions.forEach((question, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.innerHTML = `
+                    <h2>Question ${index + 1}</h2>
+                    <p>${question.text}</p>
+                    <div>
+                        ${question.answers.map(answer => `
+                            <input type="radio" name="answer${question.question_id}" value="${answer.answer_id}" data-correct="${answer.a_iscorrect}">
+                            ${answer.text}
+                            <br>
+                        `).join('')}
+                    </div>
+                `;
+                questionsContainer.appendChild(questionElement);
+            });
+        });
+
+    // Submit exam
+    submitButton.addEventListener('click', submitExam);
+
+    function submitExam() {
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const questions = document.querySelectorAll('.question');
+        let score = 0;
+        questions.forEach(question => {
+            const selectedAnswer = question.querySelector('input[type="radio"]:checked');
+            if (selectedAnswer && selectedAnswer.dataset.correct === 'True') {
+                score++;
+            }
+        });
+
+        fetch('/submit_exam', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            credentials: 'same-origin',  // Include session cookie
+            body: JSON.stringify({ score, time_taken: 20*60 - timeLeft })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Exam submitted successfully.") {
+                alert('Exam submitted successfully. Your score is ' + score);
+            } else {
+                alert('Error submitting exam: ' + data.error);
+            }
+        });
+    }
+});
+
+
+</script>
+
+
+{% endblock %}
+</body>
+</html>
+
+
+
