@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+</head>
+<body>
+
+{% block content %}
+<div class="container mx-auto mt-8">
+    <h2 class="text-2xl font-bold mb-4">Шалгалтын түүх</h2>
+    <table class="table-auto w-full">
+        <thead>
+            <tr>
+                <th class="px-4 py-2">Оноо</th>
+                <th class="px-4 py-2">Шалгалт өгсөн огноо</th>
+                <th class="px-4 py-2">Зарцуулсан хугацаа(сек)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exam in exam_history %}
+            <tr class="bg-gray-100">
+                <td class="border px-4 py-2">{{ exam.score }}</td>
+                <td class="border px-4 py-2">{{ exam.date_taken }}</td>
+                <td class="border px-4 py-2">{{ exam.time_taken }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+    
+</body>
+</html>

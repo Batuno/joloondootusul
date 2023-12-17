@@ -26,10 +26,18 @@
                                 </div>
                                 <form>
                                     {% for answer in question.answers %}
-                                        <label>
-                                            <input type="radio" name="answer{{ question.question_id }}" value="{{ answer.a_text }}">
-                                            {{ answer.a_text }} ({% if answer.a_iscorrect %}Correct{% else %}Incorrect{% endif %})
-                                        </label><br>
+                                        <div class="{% if answer.a_iscorrect %}correct{% else %}incorrect{% endif %}">
+                                            <label class="block mb-2 p-4 border border-gray-300 rounded-md hover:border-blue-500 transition duration-300 bg-white flex items-center">
+                                                <input type="radio" name="answer{{ question.question_id }}" value="{{ answer.a_text }}" class="mr-2" data-correct="{{ answer.a_iscorrect }}">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6 text-green-500 mr-2 correct-icon hidden">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6 text-red-500 mr-2 incorrect-icon hidden">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                </svg>
+                                                <span class="text-lg">{{ answer.a_text }}</span>
+                                            </label>                                            
+                                        </div>
                                     {% endfor %}
                                 </form>
                             </div>
@@ -42,7 +50,27 @@
         {% endif %}
     </div>
 
+    <script>
+    document.querySelectorAll('input[type="radio"]').forEach(radioButton => {
+    radioButton.addEventListener('change', function() {
+        const label = this.closest('label');
+        const correctIcon = label.querySelector('.correct-icon');
+        const incorrectIcon = label.querySelector('.incorrect-icon');
+
+        if (this.dataset.correct === 'True') {
+            correctIcon.classList.remove('hidden');
+            incorrectIcon.classList.add('hidden');
+        } else {
+            correctIcon.classList.add('hidden');
+            incorrectIcon.classList.remove('hidden');
+        }
+    });
+});
+
+    </script>
+
     {% endblock %}
 
 </body>
 </html>
+

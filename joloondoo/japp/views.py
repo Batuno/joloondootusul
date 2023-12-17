@@ -121,17 +121,17 @@ def getUser(request):
     con = None
     if request.method == 'GET':
         try:
-            data = json.loads(request.body)
-            user_id = data.get('user_id', 'nokey')
+            # data = json.loads(request.body)
+            user_id = request.session.get('user_id')
             con = connect()
             cur = con.cursor()
-            cur.execute(f"SELECT * FROM tbl_user WHERE user_id = {user_id};")
+            cur.execute(f"SELECT username, email, first_name, last_name, phone FROM tbl_user WHERE user_id = {user_id};")
             columns = cur.description
-            respRow = [{columns[index][0]:column for index,
+            user_data = [{columns[index][0]:column for index,
                     column in enumerate(value)} for value in cur.fetchall()]
             
 
-            if not respRow:
+            if not user_data:
                 response_data = {
                     "message": "Хэрэглэгчийн id тай тохирсон хэрэглэгч олдсонгүй."
                 }
@@ -139,8 +139,9 @@ def getUser(request):
             
             response_data = {
                 "message": "Амжилттай",
-                "respRow": respRow,
+                "respRow": user_data,
             }
+            return render(request, 'profile_page.html', {'user_data': user_data})
             return JsonResponse(response_data, status=200)
 
         except Exception as error:
@@ -610,6 +611,7 @@ def submit_exam(request):
             time_taken = data.get('time_taken')
             date_taken = datetime.datetime.now()
             user_id = request.session.get('user_id')
+            answers = data.get('answers', {})
 
             if user_id is None:
                 response_data = {
@@ -630,6 +632,16 @@ def submit_exam(request):
                 (user_id, score, date_taken, time_taken)
             )
             exam_id = cur.fetchone()[0]
+
+            for question_id, answer_id in answers.items():
+                cur.execute(
+                    """
+                    INSERT INTO tbl_useranswer (user_id, question_id, exam_id, answer_id)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    (user_id, question_id, exam_id, answer_id)
+                )
+
             con.commit()
             
 
@@ -655,7 +667,113 @@ def submit_exam(request):
         }
         return JsonResponse(response_data, status=405)
 
+@ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
+def get_exam_review(request, exam_id):
+    con = None
+    if request.method == 'GET':
+        try:
+            user_id = request.session.get('user_id')
+            
+            if user_id is None:
+                response_data = {
+                    "error": "User is not logged in.",
+                    "message": "Error fetching exam review."
+                }
+                return JsonResponse(response_data, status=400)
 
+            con = connect()
+            cur = con.cursor()
+            cur.execute(
+                """
+                SELECT q.question_id, q.q_images, q_explanation, es.score, a.answer_id, a.a_text, a.a_iscorrect, ua.answer_id AS useranswer_id
+                FROM tbl_question q
+                INNER JOIN tbl_answer a ON q.question_id = a.question_id
+                LEFT JOIN tbl_useranswer ua ON q.question_id = ua.question_id AND ua.exam_id = %s AND ua.user_id = %s
+                LEFT JOIN tbl_examscore es ON es.exam_id=ua.exam_id
+                WHERE ua.exam_id = %s
+                """,
+                (exam_id, user_id, exam_id)
+            )
+
+            rows = cur.fetchall()
+            questions = {}
+            for row in rows:
+                question_id, q_images, q_explanation, score, answer_id, a_text, a_iscorrect, useranswer_id = row
+                if question_id not in questions:
+                    questions[question_id] = {
+                        'question_id': question_id,
+                        'image': q_images,
+                        'explanation': q_explanation,
+                        'answers': [],
+                    }
+                questions[question_id]['answers'].append({
+                    'answer_id': answer_id,
+                    'text': a_text,
+                    'correct': a_iscorrect,
+                    'user_answer': useranswer_id == answer_id,
+                })
+
+            response_data = {
+                "message": "Successful",
+                "questions": questions,
+            }
+            return render(request, 'review_exam.html', {'questions': questions, 'score': score})
+            return JsonResponse(response_data, status=200)
+
+        except Exception as error:
+            response_data = {
+                "error": str(error),
+                "message": "Error fetching exam review.",
+            }
+            return JsonResponse(response_data, status=500)
+
+        finally:
+            if con is not None:
+                con.close()
+    else:
+        response_data = {
+            "message": "Method Not Allowed"
+        }
+        return JsonResponse(response_data, status=405)
+
+@ api_view(["POST", "GET", "PUT", "PATCH", "DELETE"])
+def track_user(request, user_id):
+    con = None
+    if request.method == 'GET':
+        try:
+            if user_id is None:
+                response_data = {
+                    "error": "User is not logged in.",
+                    "message": "Error fetching user exam history."
+                }
+                return JsonResponse(response_data, status=400)
+
+            con = connect()
+            cur = con.cursor()
+            cur.execute("SELECT * FROM tbl_examscore WHERE user_id = %s", [user_id])
+            columns = [col[0] for col in cur.description]
+            exam_history = [
+                dict(zip(columns, row))
+                for row in cur.fetchall()
+            ]
+
+            return render(request, 'track_user.html', {'exam_history': exam_history})
+
+        except Exception as error:
+            response_data = {
+                "error": str(error),
+                "message": "Error fetching user exam history.",
+            }
+            return JsonResponse(response_data, status=500)
+
+        finally:
+            if con is not None:
+                con.close()
+    else:
+        response_data = {
+            "message": "Method Not Allowed"
+        }
+        return JsonResponse(response_data, status=405)
 
 def logout(request):
     if request.session.get('user_authenticated', False):
@@ -672,16 +790,16 @@ def home(request):
 
 
 
-def profile_page(request):
-    if not request.session.get('user_authenticated', False):
-        return HttpResponseRedirect(reverse('login_page'))
-    else:
-        try:
-            user_data = getUser()
+# def profile_page(request):
+#     if not request.session.get('user_authenticated', False):
+#         return HttpResponseRedirect(reverse('login_page'))
+#     else:
+#         try:
+#             user_data = getUser()
             
-            return render(request, 'profile_page.html', {'getUser': user_data})
-        except Exception as error:
-            return render(request, 'profile_page.html', {'error': str(error)})
+#             return render(request, 'profile_page.html', {'getUser': user_data})
+#         except Exception as error:
+#             return render(request, 'profile_page.html', {'error': str(error)})
 
 
 def register_page(request):

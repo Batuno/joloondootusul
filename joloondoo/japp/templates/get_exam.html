@@ -14,7 +14,7 @@
 
     <div id="questions">
         {% for question in questions %}
-            <div class="mb-8 question" data-exam-id="{{ question.exam_id }}">
+            <div class="mb-8 question" data-question-id="{{ question.question_id }}">
                 <h2 class="text-2xl font-semibold mb-4">Асуулт {{ forloop.counter }}</h2>
                 <img src="media/{{ question.image }}" alt="Question {{ forloop.counter }}" class="w-full mb-4 rounded-lg shadow-md">
 
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 questionElement.innerHTML = `
                     <h2>Question ${index + 1}</h2>
                     <p>${question.text}</p>
-                    <div>
+                    <div data-question-id="${question.question_id}">
                         ${question.answers.map(answer => `
                             <input type="radio" name="answer${question.question_id}" value="${answer.answer_id}" data-correct="${answer.a_iscorrect}">
                             ${answer.text}
@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         `).join('')}
                     </div>
                 `;
+
                 questionsContainer.appendChild(questionElement);
             });
         });
@@ -84,12 +85,17 @@ document.addEventListener('DOMContentLoaded', function () {
         const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
         const questions = document.querySelectorAll('.question');
         let score = 0;
+        const answers = {};
         questions.forEach(question => {
             const selectedAnswer = question.querySelector('input[type="radio"]:checked');
-            if (selectedAnswer && selectedAnswer.dataset.correct === 'True') {
-                score++;
+            if (selectedAnswer) {
+                if (selectedAnswer.dataset.correct === 'True') {
+                    score++;
+                }
+                answers[question.dataset.questionId] = selectedAnswer.value;
             }
         });
+
 
         fetch('/submit_exam', {
             method: 'POST',
@@ -98,12 +104,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 'X-CSRFToken': csrftoken
             },
             credentials: 'same-origin',  // Include session cookie
-            body: JSON.stringify({ score, time_taken: 20*60 - timeLeft })
+            body: JSON.stringify({ score, time_taken: 20*60 - timeLeft, answers })
         })
         .then(response => response.json())
         .then(data => {
             if (data.message === "Exam submitted successfully.") {
-                alert('Exam submitted successfully. Your score is ' + score);
+                //alert('Exam submitted successfully. Your score is ' + score);
+                window.location.href = '/exam_review/' + data.exam_score_id + '/';
             } else {
                 alert('Error submitting exam: ' + data.error);
             }
